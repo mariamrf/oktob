@@ -1,0 +1,6 @@
+/* CSS declarations go here */
+@import 'settings';
+@import '{zurb:foundation-sites}/scss/foundation';
+
+@include foundation-everything;
+
