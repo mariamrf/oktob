@@ -259,7 +259,7 @@ Template.showStory.onDestroyed(function () {
     },
     message: function(num){
       var id = Session.get('thisStory');
-      var count = Comments.find({story: id, chapter: num}).count();
+      var count = Comments.find({chapter: num}).count();
       if(count==0) return "Be the first to comment!";
       else return "Join the discussion!";
     }
