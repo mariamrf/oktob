@@ -37,15 +37,22 @@ Meteor.methods({
       if(st.author === Meteor.userId()){
       Story.remove({_id: storyid});
       Chapters.remove({story: storyid});
-      Likes.remove({story: storyid});
-      Comments.remove({story: storyid});
-      Follows.remove({story: storyid});
-      Notifications.remove({id: storyid});
-      Notifications.find({type: 'C'}).forEach(function(myAlert){
-        var commentId = myAlert.id;
-        var comm = Comments.findOne(commentId);
-        if(comm.story == storyid) Notifications.remove(myAlert._id);
+      Comments.find({story: storyid}).forEach(function(myComment){
+        var x = myComment._id;
+       if(Notifications.findOne({type: 'C', id: x})) Notifications.remove({type: 'C', id: x});
       });
+      Comments.remove({story: storyid});
+      Likes.find({story: storyid}).forEach(function(myLike){
+        var x = myLike._id;
+        if(Notifications.findOne({type: 'L', id: x})) Notifications.remove({type: 'L', id: x});
+      });
+      Likes.remove({story: storyid});
+      Follows.find({story: storyid}).forEach(function(myFollow){
+        var x = myFollow._id;
+        if(Notifications.findOne({type:'F', id: x})) Notifications.remove({type: 'F', id: x});
+      });
+      Follows.remove({story: storyid});
+
     }
       
     },
@@ -88,12 +95,20 @@ Meteor.methods({
       var diff = st.wordCount - wc;
       var old = st.chapters;
       if(st.author === Meteor.userId()){
+        Comments.find({story: id, chapter: num}).forEach(function(myComment){
+          var x = myComment._id;
+          if(Notifications.findOne({type: 'C', id: x})) Notifications.remove({type: 'C', id: x});
+          Story.update({_id: id}, {$inc: {comments: -1}});
+        });
+        Comments.remove({story: id, chapter: num});
         Chapters.remove({story: id, number: num});
-        Story.update({_id: id}, {$inc: {chapters: -1}, $set: {wordCount: diff}});
+        
         if(num<old){
           Chapters.update({number: {$gt: num}}, {$inc: {number: -1}});
         }
         else if(num==old && st.status == 'Complete') Story.update({_id: id}, {$set: {status: "Work-In-Progress"}});
+
+        Story.update({_id: id}, {$inc: {chapters: -1}, $set: {wordCount: diff}});
       }
     },
     setVisit: function(){

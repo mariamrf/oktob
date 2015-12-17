@@ -74,7 +74,7 @@ action: function(){
 
 Router.route('/story/:_id/edit', {
   loadingTemplate: 'spinner',
-  waitOn: function(){
+ waitOn: function(){
     return Meteor.subscribe('singleStory', this.params._id);
   },
   action: function(){
