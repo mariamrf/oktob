@@ -48,14 +48,13 @@ else this.render('noPermission');
 Router.route('/story/:_id', {
   loadingTemplate: 'spinner',
   waitOn: function(){
-    if(Story.findOne(this.params._id))
-      return [Meteor.subscribe('chapters', this.params._id), Meteor.subscribe('profileLikes', Meteor.userId()), Meteor.subscribe('star'), Meteor.subscribe('allComments', this.params._id), Meteor.subscribe('singleStory', this.params._id)];
+    return [Meteor.subscribe('chapters', this.params._id), Meteor.subscribe('profileLikes', Meteor.userId()), Meteor.subscribe('star'), Meteor.subscribe('allComments', this.params._id), Meteor.subscribe('singleStory', this.params._id)];
   },
   action: function(){
   var ID = this.params._id;
-  if(!Story.findOne(ID)){this.render('notFound');}
+  if(!Story.findOne()){this.render('notFound');}
   else {Session.set('thisStory', ID);
-  this.render('showStory');} 
+  this.render('showStory'); }
 }
 });
 

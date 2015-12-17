@@ -255,7 +255,7 @@ Template.showStory.onDestroyed(function () {
     },
     comments: function(num){
       var id = Session.get('thisStory');
-      return Comments.find({story: id, chapter: num}).count();
+      return Comments.find({chapter: num}).count();
     },
     message: function(num){
       var id = Session.get('thisStory');
