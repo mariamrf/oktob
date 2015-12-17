@@ -1,0 +1,117 @@
+<template name="quickBrowse">
+
+	<form>
+		<div class="small-12 medium-6 columns"><label>I want to read...
+			<select name="genre" aria-describedby="genreHelpText">
+			<option value="" disabled selected>Genre</option>
+			<option value="Any">Any</option>
+		    <option value="Crime/Detective">Crime/Detective</option>
+		    <option value="Drama">Drama</option>
+		    <option value="Fanfiction">Fanfiction</option>
+		    <option value="Fantasy">Fantasy</option>
+		    <option value="Folklore">Folklore</option>
+		    <option value="Historical Fiction">Historical Fiction</option>
+		    <option value="Horror">Horror</option>
+		    <option value="Humor">Humor</option>
+		    <option value="Magical Realism">Magical Realism</option>
+		    <option value="Metafiction">Metafiction</option>
+		    <option value="Mystery">Mystery</option>
+		    <option value="Mythology">Mythology</option>
+		    <option value="Non-fiction">Non-fiction</option>
+		    <option value="Realistic Fiction">Realistic Fiction</option>
+		    <option value="Science Fiction">Science Fiction</option>
+		    <option value="Short Story">Short Story</option>
+		    <option value="Suspense/Thriller">Suspense/Thriller</option>
+		    <option value="Western">Western</option>
+		    <option value="Other">Other</option>
+		</select> 
+		</label>
+		<p class="help-text" id="genreHelpText">Choose a genre (or "Any" if you're adventurous)</p>
+	</div>
+		<div class="small-12 medium-6 columns"><label>Rated at most...
+			<select name="rating" aria-describedby="ratingHelpText">
+			    <option value="G">General Audience</option>
+			    <option value="T" selected>Teen and Above</option>
+			    <option value="R">Adult</option>
+			    <option value="E">Explicit</option>
+  			</select>
+		</label>
+		<p class="help-text" id="ratingHelpText">Ratings indicate the suggested appropriate audience</p>
+	</div>
+		<div class="small-12 columns"><label>That is...
+				<select name="status">
+				<option value="" disabled selected>Status</option>
+			    <option value="Complete">Complete</option>
+			    <option value="Work-In-Progress">a Work-In-Progress</option>
+			    <option value="Either">Either</option>
+  			</select>
+		</label></div>
+		<div class="small-12 medium-6 columns"><label> Sort By:
+			<select name="sortby">
+				<option value="update" selected>Update Date</option>
+			    <option value="likes">Likes</option>
+			    <option value="comments">Comments</option>
+			    <option value="wordcount">Word Count</option>
+			</select>
+		</label></div>
+		<div class="small-12 medium-6 columns"><label> Order:
+			<select name="sortorder">
+				<option value="descendingly" selected>More to Less</option>
+			    <option value="ascendingly">Less to More</option>
+			</select>
+		</label></div>
+		<div class="small-12 columns"><input type="submit" id="submitBrowse" class="hollow button expanded" value="Go"></div>
+	</form>
+
+</template>
+
+<template name="browse">
+<div class="row">
+	<div class="small-12 medium-8 columns">
+		{{#if hasResults}}
+
+		{{#each result}} 	<div class="row">
+			<div class="small-12 columns">
+				<div class="story">
+	<div class="row">
+		<div class="small-12 columns">
+			<h5>
+				<a href="/story/{{_id}}">{{title}}</a>
+				<small class="author"><a href="/profile/{{author}}">&emsp;by {{authorName author}}</a></small>
+			</h5>
+		</div>
+	</div>
+	<div class="row">
+		<div class="small-12 columns"><p>{{description}}</p></div>
+	</div>
+	<div class="row">
+		<div class="small-12 columns"><span class="stats"><span class="stats-label">Genre:</span> {{genre}} / <span class="stats-label">Rating:</span> {{rating}} / <span class="stats-label">Word Count:</span> {{wordCount}} / <span class="stats-label">Chapters:</span> {{chapters}} / <span class="stats-label">Last Updated:</span> {{fromNow updateDate}} / <span class="stats-label">Published:</span> {{fromNow uploadDate}} / <span class="stats-label">Status:</span> {{status}} / <span class="stats-label">Likes:</span> {{likes}} / <span class="stats-label">Comments:</span> {{comments}}</span></div>
+	</div>
+</div>
+			</div>
+		</div>{{/each}}
+		{{else}}
+		<h6>No Results Found</h6>
+		{{/if}}
+
+
+	</div>
+	<div class="small-12 medium-4 columns">
+
+		{{>quickBrowse}}
+	</div>
+
+</div>
+</template>
+
+<template name="vanillaBrowse">
+<div class="row">
+	<div class="small-12 medium-8 large-centered columns">
+		
+		{{>quickBrowse}}
+		
+		
+	</div>
+
+</div>
+</template>

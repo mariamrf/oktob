@@ -1,0 +1,80 @@
+<template name="editStory">
+{{#if currentUser}}
+	<div class="row">
+		<div class="small-12 columns"><h2>Edit <small>"{{title}}"</small></h2></div>
+	</div>
+	<form>
+	<div class="row">
+		<div class="small-12 medium-6 columns"><input type="text" name="storytitle" placeholder="Title of the story" value="{{title}}"></div> </div>
+		<div class="row"><div class="small-12 medium-6 columns"><select id="genre" name="genre">
+			<option value="" disabled selected>Genre</option>
+		    <option value="Crime/Detective">Crime/Detective</option>
+		    <option value="Drama">Drama</option>
+		    <option value="Fanfiction">Fanfiction</option>
+		    <option value="Fantasy">Fantasy</option>
+		    <option value="Folklore">Folklore</option>
+		    <option value="Historical Fiction">Historical Fiction</option>
+		    <option value="Horror">Horror</option>
+		    <option value="Humor">Humor</option>
+		    <option value="Magical Realism">Magical Realism</option>
+		    <option value="Metafiction">Metafiction</option>
+		    <option value="Mystery">Mystery</option>
+		    <option value="Mythology">Mythology</option>
+		    <option value="Non-fiction">Mythology</option>
+		    <option value="Realistic Fiction">Realistic Fiction</option>
+		    <option value="Science Fiction">Science Fiction</option>
+		    <option value="Short Story">Short Story</option>
+		    <option value="Suspense/Thriller">Suspense/Thriller</option>
+		    <option value="Western">Western</option>
+		    <option value="Other">Other</option>
+		</select></div></div>
+		<div class="row"><div class="small-12 medium-6 columns"><select id="rating" name="rating">
+			<option value="" disabled selected>Rating</option>
+		    <option value="G">General Audience</option>
+		    <option value="T">Teen and Above</option>
+		    <option value="R">Adult</option>
+		    <option value="E">Explicit</option>
+  </select></div></div>
+		<div class="row"><div class="small-12 medium-6 columns"><textarea name="desc" id="descriptionBox" placeholder="Description" maxlength="500" value="{{description}}"></textarea></div></div>
+		<div class="row"><div class="small-12 medium-6 columns"><p class="float-right" id="counter"></p></div></div>
+		<div class="row"><div class="small-12 medium-6 columns"><input type="checkbox" id="checkbox4" name="dispChapters"><label for="checkbox4">Do not display chapter numbers.</label></div></div>
+		<div class="row"><div class="small-12 columns"><input type="submit" class="hollow button" name="submitStory"></div></div>
+
+	</form>
+	{{else}}
+<div class="row"><div class="small-12 columns"><h2 class="text-center">Whoa there!</h2></div>
+<div class="small-12 columns"><p class="text-center">Authorized personnel only! Sign in above to access this page.</p></div>
+</div>
+{{/if}}
+	</template>
+
+	<template name="editChapter">
+		{{#if currentUser}}
+	<div class="row">
+		<div class="small-12 columns">
+			<h2>Edit Chapter</h2>
+			<h6 class="tip">TIP: If the text editor hasn't loaded, refresh the page.</h6>
+<form>
+	<label>Note:
+	<input type="text" name="note" placeholder="Note before chapter" value="{{note}}"></label>
+	<label>Content of the chapter:<textarea name="chContent" placeholder="Content of chapter">{{{content}}}</textarea></label>
+	<input type="checkbox" id="checkbox2" name="completed"><label for="checkbox2">This is the last chapter of the story.</label>
+	<br>
+	<input type="submit" class="hollow button chapterContent" name="submitChapter"><a href="/story/{{storyid}}" class="hollow button">Cancel</a><a data-open="chDeleteConfirmation" class="hollow button">Delete Chapter</a>
+</form>
+		</div>
+	</div>
+	<div class="tiny reveal" id="chDeleteConfirmation" data-reveal>
+  		<h3>Are you sure?</h3>
+  		<p>Once you delete this, you can't get it back.</p>
+  		<a class="small hollow button" id="chConfirmDelete">YES, DELETE THIS!</a>
+  <button class="close-button" data-close aria-label="Close reveal" type="button">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+{{else}}
+<div class="row"><div class="small-12 columns"><h2 class="text-center">Whoa there!</h2></div>
+<div class="small-12 columns"><p class="text-center">Authorized personnel only! Sign in above to access this page.</p></div>
+</div>
+{{/if}}
+	</template>

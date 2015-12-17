@@ -38,6 +38,11 @@
 	font-family: 'Righteous';
 	color: rgb(89,101,149);
 }
+.comment-counter{
+	font-family: 'Righteous';
+	color: rgb(89,101,149);
+}
+
 
 .heart-icon{
 	stroke:black;
@@ -69,10 +74,15 @@ ul.topMenu{
 	display: inline;
 }
 
-#counter{
+#counter, #counter2{
 	text-transform: uppercase;
 	font-size: 0.8em;
 
+}
+.comment-content{
+	border:rgba(89,101,149,0.5) dashed;
+	padding:0.5em;
+	margin-bottom:0.5em;
 }
 .tip{
 	color: #f1c40f;
@@ -113,13 +123,79 @@ ul.topMenu{
 .signin{
 	margin:0.5em;
 }
-
+.has-tip{
+	cursor:auto !important;
+	border: none !important;
+}
 .story{
 	border-radius: 1em;
 	border: 1px solid rgb(89,101,149);
 	margin-bottom: 0.5em;
 	padding:0.5em;
 	background-color:white;
+}
+.alertDate{
+	color:#95a5a6;
+	text-transform: lowercase;
+}
+.alerts{
+	position:relative;
+}
+.new-alert-icon{
+	fill:#e67e22;
+}
+.alert-bubble{
+	position:absolute;
+ 	padding:0.4em;
+ 	right:0.9em;
+ 	top:0.4em;
+    background-color:#e74c3c;
+    color:white;
+    font-weight:bold;
+    font-size:0.7em;
+    border-radius:50%;
+  
+}
+#comment-textarea{
+	border-radius:1em;
+}
+
+.comment-icon{
+	fill: #38D6C7;
+}
+.comment-icon-container{
+
+}
+
+.comment-bubble{
+
+ 	padding-right:0.4em;
+ 	padding-left: 0.4em;
+ 	margin-right:0.5em;
+ 	margin-left:-0.9em;
+    background-color:#7f8c8d;
+    color:white;
+    font-weight:bold;
+    font-size:0.7em;
+    border-radius:20%;
+}
+
+.update-icon{
+	fill:rgb(89,101,149);
+}
+.nav-icon{
+	fill: rgba(89,101,149, 1);
+}
+
+.nav-icon:hover{
+	fill: rgba(89,101,149, 0.7);
+}
+
+.highlighted{
+	border-radius: 1em;
+	border: 1px solid #bdc3c7;
+	margin-bottom: 0.5em;
+	padding:0.2em;
 }
 
 .stats{
@@ -146,6 +222,14 @@ ul.topMenu{
 	margin-bottom:1em;
 
 
+}
+
+.unselected-star{
+	fill:#bdc3c7;
+}
+
+.selected-star{
+	fill:#f1c40f;
 }
 
 

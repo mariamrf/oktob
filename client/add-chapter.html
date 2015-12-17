@@ -1,0 +1,27 @@
+<template name="addChapter">
+	{{#if currentUser}}
+	<div class="row">
+		<div class="small-12 columns">
+			<h2>Add New Chapter <small>to "{{title}}"</small></h2>
+			<h6 class="tip">TIP: If the text editor hasn't loaded, refresh the page.</h6>
+<form>
+	<label>Note:
+	<input type="text" name="note" placeholder="Note before chapter"></label>
+	<label>Content of the chapter:<textarea name="chContent" placeholder="Content of chapter"></textarea></label>
+	<input type="checkbox" id="checkbox1" name="completed"><label for="checkbox1">This is the last chapter of the story.</label>
+	<br>
+	<input type="submit" class="hollow button chapterContent" name="submitChapter"><a href="/story/{{storyid}}" class="hollow button">Cancel</a>
+</form>
+		</div>
+	</div>
+{{else}}
+<div class="row"><div class="small-12 columns"><h2 class="text-center">Whoa there!</h2></div>
+<div class="small-12 columns"><p class="text-center">Authorized personnel only! Sign in above to access this page.</p></div>
+</div>
+{{/if}}
+</template>
+<template name="noPermission">
+<div class="row"><div class="small-12 columns"><h2 class="text-center">Whoa there!</h2></div>
+<div class="small-12 columns"><p class="text-center">Sorry, but you can't do that :(</p></div>
+</div>
+</template>

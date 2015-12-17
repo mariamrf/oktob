@@ -1,0 +1,40 @@
+<template name="showChapter">
+	<div class="row">
+			<div class="small-12 columns">
+			<h4><a href="/story/{{storyid}}">&#60;&#34;{{title}}&#34;</a></h4>
+				<div class="story">
+	{{#if myProfile}}
+						<div class="text-right"><h5>
+						<ul class="menu float-right">
+						<li><a href="/story/{{storyid}}/{{number}}/edit" class="tiny hollow button">Edit Chapter</a></li>
+					</ul></h5></div>{{/if}}
+						{{#if canDisplay}}<div class="chapter-title text-center"><p><b>CHAPTER {{number}}</b></p></div>{{/if}}
+						{{#if hasNote}}<div class="note"><b>Author's Note: </b>{{note}}</div>{{/if}}
+						<div class="content">{{{content}}}</div>
+			</div></div></div>	
+			{{#if currentUser}}
+	<div class="row">
+		<div class="small-12 medium-6 large-centered columns">
+			<h5>Comments:</h5>
+		<form>
+			<textarea id="comment-textarea" rows="4" name="comment" maxlength="500" placeholder="Write a comment..."></textarea>
+			<p class="float-right" id="counter2"></p>
+			<p><input type="submit" class="hollow button" name="submitComment"></p>
+		</form>
+
+		</div>
+	</div>	
+		{{/if}}	
+		{{#each commentContent}}
+		<div class="row">
+			<div class="small-12 columns">
+				<div class="comment-content">
+				<h6><a href="/profile/{{commenter}}">{{username commenter}}</a>: <small>{{fromNow date}}</small> {{#if canDelete commenter}}<span class="float-right"><a href="/story/{{storyid}}/{{number}}/delete/{{_id}}">x</a></span>{{/if}}</h6>
+				<p>{{comment}}</p>
+			</div>
+			</div>
+		</div>
+		{{/each}}
+		
+
+</template>

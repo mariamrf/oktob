@@ -1,0 +1,26 @@
+<template name="alerts">
+{{#if currentUser}}
+	<div class="row">
+		<div class="small-12 columns">
+			{{#if hasAlerts}}
+				<div class="row"><div class="small-12 columns"><h4>Your alerts:</h4></div></div>
+				{{#each alert}}
+					<div class="row">
+						<div class="small-12 medium-8 columns"><h6>{{#if isNew date}}{{>newIcon}}{{/if}}
+							{{#if isLike type}} {{>selectedheart}} 
+							{{else}} {{#if isFollow type}} {{>selectedStar}} {{else}} {{#if isComment type}} {{>commentIconSmall}} {{/if}}{{/if}}{{/if}} 
+
+							{{#if isUpdate type}}{{>updateIcon}} {{else}}<a href="/profile/{{personId type id}}">{{person type id}}</a> {{{message type id}}} {{/if}}<a href="/story/{{objectID type id}}">{{object type id}}</a>{{#if isUpdate type}} {{message type}} {{/if}}
+
+						<small><span class="alertDate">{{fromNow date}}</span></small></h6></div>
+					</div>
+				{{/each}}
+				
+			{{else}}
+				<h4 class="text-center">No alerts yet :(</h4>
+	
+			{{/if}}
+	</div>
+	</div>
+{{/if}}
+</template>

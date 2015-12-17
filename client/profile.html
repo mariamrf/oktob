@@ -1,0 +1,75 @@
+<template name="showProfile">
+	<div class="row">
+		<div class="small-12 columns"><h2>{{name}} <small class="profile-username">&#123;{{username}}&#125;</small>{{#if myProfile}}<a class="small hollow button float-right" href="/edit-profile">Edit Profile</a>{{/if}}</h2></div>
+		<div class="small-12 columns"><p><b>Born:</b> {{dob}}.</p></div>
+		<div class="small-12 columns"><p><b>About: </b> {{bio}}</p></div>
+	</div>
+	
+	<hr>
+	
+		<div class="row">
+		<div class="small-12 medium-6 columns">
+			<h4>Published Stories:</h4>
+			{{#if hasNotPublished}}<p>Looks like they haven't written anything yet :(</p>{{else}}
+{{#each publishedStory}}
+<div class="row">
+	<div class="small-12 columns">
+<div class="story">
+	<div class="row">
+		<div class="small-12 columns"><h5><a href="/story/{{_id}}">{{title}}</a></h5></div>
+	</div>
+	<div class="row">
+		<div class="small-12 columns"><p>{{description}}</p></div>
+	</div>
+	<div class="row">
+		<div class="small-12 columns"><span class="stats"><span class="stats-label">Genre:</span> {{genre}} / <span class="stats-label">Rating:</span> {{rating}} / <span class="stats-label">Word Count:</span> {{wordCount}} / <span class="stats-label">Chapters:</span> {{chapters}} / <span class="stats-label">Last Updated:</span> {{fromNow updateDate}} / <span class="stats-label">Published:</span> {{fromNow uploadDate}} / <span class="stats-label">Status:</span> {{status}} / <span class="stats-label">Likes:</span> {{likes}} / <span class="stats-label">Comments:</span> {{comments}}</span></div>
+	</div>
+</div>
+	</div>
+</div>
+{{/each}} {{/if}}</div> 
+
+		<div class="small-12 medium-6 columns">
+			<h4>{{> bigheart}} Liked:</h4>
+			{{#if hasNotLiked}} <p>Oops, no likes from this one..</p>{{else}}
+{{#each likedStory}}
+<div class="row">
+	<div class="small-12 columns">
+<div class="story">
+	<div class="row">
+		<div class="small-12 columns"><h5><a href="/story/{{story}}">{{titleLiked story}}</a><small class="author"><a href="/profile/{{authorID story}}">&emsp;by {{authorName story}}</a></small></h5></div>
+	</div>
+	<div class="row">
+		<div class="small-12 columns"><p>{{descriptionLiked story}}</p></div>
+	</div>
+	<div class="row">
+		<div class="small-12 columns"><span class="stats"><span class="stats-label">Genre:</span> {{genreLiked story}} / <span class="stats-label">Rating:</span> {{ratingLiked story}} / <span class="stats-label">Word Count:</span> {{wordCountLiked story}} / <span class="stats-label">Chapters:</span> {{chaptersLiked story}} / <span class="stats-label">Last Updated:</span> {{updateDateLiked story}} / <span class="stats-label">Published:</span> {{uploadDateLiked story}} / <span class="stats-label">Status:</span> {{statusLiked story}} / <span class="stats-label">Likes:</span> {{likesLiked story}} / <span class="stats-label">Comments:</span> {{commentsLiked story}}</span></div>
+	</div>
+</div>
+	</div>
+</div>
+{{/each}} {{/if}} </div> </div>
+</template>
+
+
+<template name="editProfile">
+	{{#if currentUser}}
+	<div class="row">
+		<div class="small-12 columns"><h2>Edit Profile</h2></div>
+	</div>
+<form>
+<div class="row">
+	<div class="small-6 columns"><input type="text" name="realName" placeholder="Name" value="{{name}}"></div></div>
+
+<div class="row"><div class="small-6 columns"><input type="text" name="dob" id="datepicker" placeholder="Date Of Birth" value="{{dob}}"></div></div>
+<div class="row"><div class="small-6 columns"><textarea type="text" name="bio" placeholder="Tell us about yourself.." value="{{bio}}"></textarea></div></div>
+<div class="row"><div class="small-12 columns"><input type="submit" class="hollow button" name="submitProfile"></div></div>
+
+
+</form>
+{{else}}
+<div class="row"><div class="small-12 columns"><h2 class="text-center">Whoa there!</h2></div>
+<div class="small-12 columns"><p class="text-center">Authorized personnel only! Sign in above to access this page.</p></div>
+</div>
+{{/if}}
+</template>

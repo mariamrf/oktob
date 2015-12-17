@@ -1,200 +1,8 @@
-//there's already a user db provided by Meteor, including all the info we need
-Story = new Mongo.Collection("story"); //also has likes in an array for each story
-Chapters = new Mongo.Collection("chapters"); //also has comments in an array for each chapter
-Likes = new Mongo.Collection("likes");
-//start with prototype with only stories, chapters and users then add functionality as we go
+ Meteor.subscribe('notify');
+  Meteor.subscribe('users');
+ 
+ 
 
-//TODO: Loading, Publishing(should we leave it at autopublish? hmm)
-//TODO: Move all errors to iron-router
-//TODO: Infinite load instead of getting all results at once
-//TODO: Add tip to pages with rich text, or force refresh
-//WHEN COMMENTS ARE ADDED TO CHAPTERS, MAKE SURE TO REMOVE THEM WITH DELETE
-
-throwError = function(error, reason, details) {  
-  var meteorError = new Meteor.Error(error, reason, details);
-
-  if (Meteor.isClient) {
-    // this error is never used
-    // on the client, the return value of a stub is ignored
-    return meteorError;
-  } else if (Meteor.isServer) {
-    throw meteorError;
-  }
-};
-
-var Schemas = {};
-Schemas.Story = new SimpleSchema({
-  title: {
-    type: String,
-    label: "Title",
-    max: 200
-  },
-  genre: {
-    type: String,
-    label: "Genre",
-    max: 50
-  },
-  rating: {
-    type: String,
-    allowedValues: ['G', 'T', 'R', 'E']
-  },
-  chapters: {
-    type: Number,
-    autoValue: function(){if(this.isInsert) return 0;},
-    label: "Number of chapters in this story"
-  },
-  description: {
-    type: String,
-    label: "Short summary of the story",
-    max: 500
-  },
-  status: {
-    type: String,
-    allowedValues: ['Complete', 'Work-In-Progress'],
-    autoValue: function(){if(this.isInsert) return 'Work-In-Progress';}
-  },
-  uploadDate: {
-    type: Date,
-    autoValue: function(){if(this.isInsert) return new Date();}
-  },
-  wordCount: {
-    type: Number,
-    autoValue: function(){if(this.isInsert) return 0;}
-  },
-  updateDate: {
-    type: Date,
-    autoValue: function(){if(this.isInsert) return new Date();}
-  },
-  author: {
-    type: String,
-    autoValue: function(){if(this.isInsert) return Meteor.userId();}
-  },
-  likes: {
-    type: Number,
-    autoValue: function(){if(this.isInsert) return 0;}
-  }
-});
-
-Schemas.Chapters = new SimpleSchema({
-  number: {
-    type: Number,
-    label: "Order of chapter in story",
-    min: 1
-  },
-  story: {
-    type: String,
-    label: "ID of the story this belongs to"
-  },
-  note: {
-    type: String,
-    label: "Note on this chapter",
-    optional: true
-  },
-  content: {
-    type: String,
-    label: "Content of this chapter",
-  },
-  wordCount: {
-    type: Number,
-    label: "Number of words in this chapter"
-  },
-  date: {
-    type: Date,
-    label: "Date this chapter was last updated",
-    autoValue: function(){
-      if(this.isInsert || this.isUpdate) return new Date();
-    }
-  }
-});
-
-Schemas.Likes = new SimpleSchema({
-  liker: {
-    type: String,
-    label: "ID of person who liked this story",
-    autoValue: function(){
-      if(this.isInsert) return Meteor.userId();
-    }
-  },
-  story: {
-    type: String,
-    label: "ID of story liked"
-  },
-  date: {
-    type: Date,
-    label: "Date this was last liked",
-    autoValue: function(){
-      if(this.isInsert) return new Date();
-    }
-  }
-});
-
-Story.attachSchema(Schemas.Story);
-Chapters.attachSchema(Schemas.Chapters);
-Likes.attachSchema(Schemas.Likes);
-
-
-Router.route('/', function () { //TODO If something special for home, render here
-  this.render('homeList');
-});
-
-Router.route('/profile/:_id', function(){
-  var ID = this.params._id;
-  Session.set('profileID', ID);
-  var pr = Meteor.users.findOne(ID);
-  if(pr){
-  if(pr.profile) { if(pr.profile.completed) this.render('showProfile');} 
-  else if(ID === Meteor.userId() && !pr.profile) this.render('noProfile');
-}
-else this.render('notFound');
-  
-});
-
-Router.route('/edit-profile', function(){
-  this.render('editProfile');
-});
-
-Router.route('/new-story', function(){
-  this.render('submitStory');
-});
-
-Router.route('/story/:_id', function(){
-  var ID = this.params._id;
-  if(!Story.findOne(ID)){this.render('notFound');}
-  else {Session.set('thisStory', ID);
-  this.render('showStory');} 
-});
-
-Router.route('/story/:_id/new-chapter', function(){
-  var ID = this.params._id;
-  Session.set('storyId', ID);
-  var st = Story.findOne({_id: ID, author: Meteor.userId()});
-  if(st) {this.render('addChapter');}//don't render if ID doesn't exist, 404
-  else this.render('noPermission');
-});
-
-Router.route('/story/:_id/edit', function(){
-  var ID = this.params._id;
-  Session.set('storyId', ID);
-  var st = Story.findOne({_id: ID, author: Meteor.userId()});
-  if(st) this.render('editStory');
-  else this.render('noPermission');
-});
-
-Router.route('/story/:_id/:chapternumber/edit', function(){
-  var ID = this.params._id;
-  var num = this.params.chapternumber;
-  Session.set('storyId', ID);
-  Session.set('chNum', num);
-  var st = Story.findOne({_id: ID, author: Meteor.userId()});
-  if(st) this.render('editChapter');
-  else this.render('noPermission');
-});
-
-//more talk here 
-//write again to get it to refresh, BABY
-
-if (Meteor.isClient) {
- // Meteor.subscribe('showUserOnly');
     Meteor.startup(function () {
         WebFontConfig = {
     google: { families: [ 'Open+Sans:400,600:latin', 'Righteous::latin' ] }
@@ -234,14 +42,40 @@ if (Meteor.isClient) {
     });
 
 });
+Template.topBar.helpers({
+  isLarge: function(){
+    var size =  $(window).width() / parseFloat($("body").css("font-size"));
+    if(size>=40) return true;
+    else return false;
+  },
+      isSmall: function(){
+          var size = $(window).width() / parseFloat($("body").css("font-size"));
+          if(size<40) return true;
+          else return false;
+      }
+});
+
     Template.topNav.onRendered(function(){
        $(document).foundation();
+      
     });
     Template.topNav.helpers({
       id: function(){
         return Meteor.userId();
+      },
+      alerts: function(){
+        var id = Meteor.userId();
+        var then, number;
+        if(Meteor.user().profile.lastVisit) {then = Meteor.user().profile.lastVisit; 
+          number = Notifications.find({user: id, date: {$gt: then}}).count();
+          }
+        else number= Notifications.find({user: id}).count();
+       
+         return number;
       }
     });
+
+    
   Template.welcome.helpers({
     name: function(){
       return Meteor.user().profile.name;
@@ -250,6 +84,7 @@ if (Meteor.isClient) {
       return Meteor.user().username;
     }
   });
+
  
   Template.homeList.helpers({
     profileWarning: function(){
@@ -258,7 +93,7 @@ if (Meteor.isClient) {
     
     },
     homeStory: function(){
-      return Story.find({wordCount: {$ne: 0}}, {sort: {updateDate: -1}, limit:10});
+      return Story.find({wordCount: {$ne: 0}}, {sort: {updateDate: -1}, limit:3});
     },
     fromNow: function(date){
       return moment(date).fromNow();
@@ -266,6 +101,9 @@ if (Meteor.isClient) {
     authorName: function(id){
       var author = Meteor.users.findOne(id);
        return author.username;
+    },
+    locale: function(num){
+      return num.toLocaleString('en');
     }
 
   });
@@ -282,6 +120,31 @@ Template.showStory.onDestroyed(function () {
   }
 });
   Template.showStory.helpers({
+    totalComments: function(){
+      var id = Session.get('thisStory');
+      return Story.findOne(id).comments;
+    },
+    followed: function(){
+      var story = Session.get('thisStory');
+      var user = Meteor.userId();
+      var follow = Follows.findOne({story: story, follower: user});
+      if(follow) return true;
+      else return false;
+    },
+    follows: function(){
+      var id = Session.get('thisStory');
+      var num = Story.findOne(id).follows;
+      return num;
+    },
+    followCounter: function(num){
+      if(num==0) return " follows so far. Be the first to follow this!";
+      else if (num==1) return " person follows this.";
+      else return " people follow this.";
+    },
+    canDisplay: function(){
+      var id = Session.get('thisStory');
+      return Story.findOne(id).displayChapterNumbers;
+    },
     hasChapters: function(){
       var id = Session.get('thisStory');
       var num = Story.findOne(id).chapters;
@@ -389,6 +252,16 @@ Template.showStory.onDestroyed(function () {
       var last = Story.findOne(id).chapters;
       if(last == number) return false;
       else return true;
+    },
+    comments: function(num){
+      var id = Session.get('thisStory');
+      return Comments.find({story: id, chapter: num}).count();
+    },
+    message: function(num){
+      var id = Session.get('thisStory');
+      var count = Comments.find({story: id, chapter: num}).count();
+      if(count==0) return "Be the first to comment!";
+      else return "Join the discussion!";
     }
   });
   Template.showStory.events({
@@ -400,9 +273,19 @@ Template.showStory.onDestroyed(function () {
     },
     'click #like-button': function(){
       var story = Session.get('thisStory');
+      var st = Story.findOne(story).author;
       var user = Meteor.userId();
       if(!user){sAlert.warning("You have to be logged in to like this!");}
+      else if(user==st){sAlert.warning("You can't like your own story, sorry!");}
       else {Meteor.call('like', story, user);}
+    },
+    'click #follow-button': function(){
+      var story = Session.get('thisStory');
+      var st = Story.findOne(story).author;
+      var user = Meteor.userId();
+      if(!user){sAlert.warning("You have to be logged in to follow this!");}
+      else if(user==st){sAlert.warning("You can't follow your own story, sorry!");}
+      else{Meteor.call('follow', story, user);}
     }
   });
 
@@ -445,9 +328,13 @@ Template.showStory.onDestroyed(function () {
       var rating = event.target.rating.value;
       var genre = event.target.genre.value;
       var desc = event.target.desc.value;
+      var disp = event.target.dispChapters.checked;
+      var check;
+      if(disp) check = false;
+      else check = true;
       if(rating != 'G' && rating !='E' && rating !='T' && rating !='R') sAlert.error("Invalid rating!");
       else if(!title || !rating || !genre || !desc) sAlert.error("All fields are required!");
-      else{Meteor.call('addStory', title, desc, rating, genre); var pathToProfile = '/profile/' + Meteor.userId();
+      else{Meteor.call('addStory', title, desc, rating, genre, check); var pathToProfile = '/profile/' + Meteor.userId();
       Router.go(pathToProfile);}
       
       
@@ -491,9 +378,13 @@ Template.showStory.onDestroyed(function () {
       var wordcount = parseInt(res); //remove parseInt when input isn't string
       var storyid = Session.get('storyId');
       var author = Story.findOne(storyid).author;
+      var complete = event.target.completed.checked;
+      var status;
+      if(complete) status = "Complete";
+      else status = "Work-In-Progress";
       if(author==Meteor.userId()){
       if(!content) sAlert.warning("Chapter must have content!");
-      else{Meteor.call('addChapter', storyid, note, content, wordcount);
+      else{Meteor.call('addChapter', storyid, note, content, wordcount, status);
       var pathToStory = '/story/' + storyid;
       Router.go(pathToStory);}}
       else sAlert.error("You're not permitted to do this!");
@@ -515,6 +406,9 @@ Template.showStory.onDestroyed(function () {
     likedStory: function(){
       var profileId = Session.get('profileID');
       return Likes.find({liker: profileId}, {sort: {date: -1}});
+    },
+    commentsLiked: function(id){
+      return Story.findOne(id).comments;
     },
     username: function(){
       var profileId = Session.get('profileID');
@@ -584,8 +478,13 @@ Template.showStory.onDestroyed(function () {
   });
  Template.editStory.onRendered(function(){
     var id = Session.get('storyId');
-    var rating = Story.findOne(id).rating;
+    var st = Story.findOne(id);
+    var rating = st.rating;
     document.getElementById('rating').value = rating;
+    var check = Story.findOne(id).displayChapterNumbers;
+    document.getElementById('checkbox4').checked = !check;
+    var genre = st.genre;
+    document.getElementById('genre').value = genre;
   });
   Template.editStory.helpers({
     title: function(){
@@ -611,10 +510,14 @@ Template.showStory.onDestroyed(function () {
       var rating = event.target.rating.value;
       var genre = event.target.genre.value;
       var desc = event.target.desc.value;
+      var disp = event.target.dispChapters.checked;
+      var check;
+      if(disp) check = false;
+      else check = true;
       if(rating != 'G' && rating !='E' && rating !='T' && rating !='R') sAlert.error("Invalid rating!");
       else if(!title || !rating || !genre || !desc) sAlert.error("All fields are required!");
       else{
-        Meteor.call('updateStory', id, title, rating, genre, desc);
+        Meteor.call('updateStory', id, title, rating, genre, desc, check);
         var path = '/story/' + id;
         Router.go(path);
       }
@@ -623,6 +526,12 @@ Template.showStory.onDestroyed(function () {
     }
   });
  Template.editChapter.onRendered(function(){
+  var id = Session.get('storyId');
+  var num = Session.get('chNum');
+  var stry = Story.findOne(id);
+  var st = stry.status;
+  var ch = stry.chapters;
+   if(st == 'Complete' && num == ch) document.getElementById("checkbox2").checked = true;
   this.myRevealInstance = new Foundation.Reveal($('#chDeleteConfirmation'));
     tinymce.init({
   selector: 'textarea',  // change this value according to your HTML
@@ -672,9 +581,13 @@ Template.showStory.onDestroyed(function () {
       var author = Story.findOne(id).author;
       var oldwords = Story.findOne(id).wordCount;
       var difference = wordcount - oldwords;
+      var check = event.target.completed.checked;
+      var status;
+      if(check) status = "Complete";
+      else status = "Work-In-Progress";
       if(author==Meteor.userId()){
       if(!content) sAlert.warning("Chapter must have content!");
-      else{Meteor.call('editChapter', id, num, note, content, difference);
+      else{Meteor.call('editChapter', id, num, note, content, difference, status);
       var pathToStory = '/story/' + id;
       Router.go(pathToStory);}}
       else sAlert.error("You're not permitted to do this!");
@@ -687,9 +600,313 @@ Template.showStory.onDestroyed(function () {
         Meteor.call('deleteChapter', story, num);
       }else sAlert.error("Oops, you're not allowed to do that!");
       var path = '/story/' + story;
-      Router.go(path);
+      location.reload();
     }
  });
+
+  Template.feed.helpers({
+    hasFollowed: function(){
+      var user = Meteor.userId();
+      if(!Follows.findOne({follower: user})) return false;
+      else return true;
+    },
+    followedStory: function(){
+      var id = Meteor.userId();
+      return Follows.find({follower: id}, {sort: {date: -1}});
+    },
+    titleFollowed: function(id){
+      return Story.findOne(id).title;
+    },
+    authorFollowed: function(id){
+      return Story.findOne(id).author;
+    },
+    authorName: function(id){
+      var authorId = Story.findOne(id).author;
+      return Meteor.users.findOne(authorId).username;
+    },
+    descriptionFollowed: function(id){
+      return Story.findOne(id).description;
+    },
+    genreFollowed: function(id){
+      return Story.findOne(id).genre;
+    },
+    ratingFollowed: function(id){
+      return Story.findOne(id).rating;
+    },
+    wordCountFollowed: function(id){
+      return Story.findOne(id).wordCount;
+    },
+    chaptersFollowed: function(id){
+      return Story.findOne(id).chapters;
+    },
+    updateDateFollowed: function(id){
+      var d = Story.findOne(id).updateDate;
+      return moment(d).fromNow();
+    },
+    uploadDateFollowed: function(id){
+      var d = Story.findOne(id).uploadDate;
+      return moment(d).fromNow();
+    },
+    statusFollowed: function(id){
+      return Story.findOne(id).status;
+    },
+    likesFollowed: function(id){
+      return Story.findOne(id).likes;
+    },
+    commentsFollowed: function(id){
+      return Story.findOne(id).comments;
+    }
+  });
+  Template.alerts.onRendered(function(){
+    //iron router wouldn't render it if user wasn't signed in
+    Session.set('previousVisit', Meteor.user().profile.lastVisit);
+    Meteor.call('setVisit');
+  }); 
+  Template.alerts.helpers({
+
+    hasAlerts: function(){
+      var id = Meteor.userId();
+      if(Notifications.findOne({user: id})) return true;
+      else return false;
+    },
+    isNew: function(date){
+      var then = Session.get('previousVisit');
+      if(date>then) return true;
+      else return false;
+    },
+    alert: function(){
+      var id = Meteor.userId();
+      var al = Notifications.find({user: id}, {sort: {date: -1}});
+      return al;
+    },
+    setType: function(type){
+      Session.set('alertType', type);
+    },
+    isLike: function(type){
+      if(type=='L') return true;
+      else return false;
+    },
+    isFollow: function(type){
+      if(type=='F') return true;
+      else return false;
+    },
+    isUpdate: function(type){
+      if(type=='U') return true;
+      else return false;
+    },
+    isComment: function(type){
+      if(type=='C') return true;
+      else return false;
+    },
+    person: function(type, id){
+      if(type=='F'){
+        var follow = Follows.findOne(id).follower;
+        return Meteor.users.findOne(follow).username;
+      }
+      else if(type=='L'){
+        var like = Likes.findOne(id).liker;
+        return Meteor.users.findOne(like).username;
+      }
+      else if(type=='C'){
+        var comment = Comments.findOne(id).commenter;
+        return Meteor.users.findOne(comment).username;
+      }
+     
+    },
+    personId: function(type, id){
+      if(type=='F'){
+        var follow = Follows.findOne(id).follower;
+        return follow;
+      }
+      else if(type=='L'){
+        var like = Likes.findOne(id).liker;
+        return like;
+      }
+      else if(type=='C'){
+        var comment = Comments.findOne(id).commenter;
+        return comment;
+      }
+    },
+    message: function(type, id){
+      if(type=='F'){
+        return "followed your story ";
+      }
+      else if(type=='L'){
+        return "liked your story ";
+      }
+      else if(type=='U'){
+        return "was updated.";
+      }
+      else if(type=='C'){
+        var comment = Comments.findOne(id);
+        return 'commented on <a href="/story/'+ comment.story +'/'+ comment.chapter + '">Chapter ' + comment.chapter + '</a> of your story ';
+      }
+    },
+    object: function(type, id){
+      if(type=='F'){
+        var follow = Follows.findOne(id).story;
+        var st = Story.findOne(follow);
+        return '"' + st.title + '"';
+      }
+      else if(type=='L'){
+        var like = Likes.findOne(id).story;
+        var stry = Story.findOne(like);
+        return '"' + stry.title + '"';
+      }
+       else if(type=='U'){
+        return Story.findOne(id).title;
+      }
+      else if(type=='C'){
+        var s = Comments.findOne(id).story;
+        return '"'+ Story.findOne(s).title+'"';
+      }
+    },
+    objectID: function(type, id){
+       if(type=='F'){
+        return Follows.findOne(id).story;
+      }
+      else if(type=='L'){
+        return Likes.findOne(id).story;
+      }
+       else if(type=='U'){
+        return id;
+      }
+      else if(type=='C'){
+        return Comments.findOne(id).story;
+      }
+    },
+    fromNow: function(date){
+      return moment(date).fromNow();
+    }
+  });
+
+Template.showChapter.helpers({
+  title: function(){
+    var story = Session.get('storyId');
+    return Story.findOne(story).title;
+  },
+  myProfile: function(){
+    var myId = Meteor.userId();
+    var story = Session.get('storyId');
+    var author = Story.findOne(story).author;
+    if(myId==author) return true;
+    else return false;
+  },
+  storyid: function(){
+    return Session.get('storyId');
+  },
+  number: function(){
+    return Session.get('chNum');
+  },
+  canDisplay: function(){
+    var id = Session.get('storyId');
+    var check = Story.findOne(id).displayChapterNumbers;
+    if(check) return true;
+    else return false;
+  },
+  hasNote: function(){
+    var id = Session.get('storyId');
+    var ch = parseInt(Session.get('chNum'));
+    if(Chapters.findOne({story: id, number: ch}).note) return true;
+    else return false;
+  },
+  note: function(){
+    var id = Session.get('storyId');
+    var ch = parseInt(Session.get('chNum'));
+    return Chapters.findOne({story: id, number: ch}).note;
+  },
+  content: function(){
+    var id = Session.get('storyId');
+    var ch = parseInt(Session.get('chNum'));
+    return Chapters.findOne({story: id, number: ch}).content;
+  },
+  commentContent: function(){
+    var id = Session.get('storyId');
+    var ch = parseInt(Session.get('chNum'));
+    return Comments.find({story: id, chapter: ch});
+  },
+  username: function(id){
+    return Meteor.users.findOne(id).username;
+  },
+  fromNow: function(date){
+    return moment(date).fromNow();
+  },
+  canDelete: function(commenterId, id){
+    var user = Meteor.userId();
+    var st = Session.get('storyId');
+    var author = Story.findOne(st).author;
+    if(user==commenterId || user==author)   return true;
+    return false;
+
+  }
+});
+
+Template.showChapter.events({
+  'keyup #comment-textarea': function(){
+      var x = event.target.value.length;
+      document.getElementById('counter2').innerHTML = "Characters left = " + (500-x);
+
+    },
+    'submit form': function(){
+      event.preventDefault();
+      var comment = event.target.comment.value;
+      var ID = Meteor.userId();
+      var story = Session.get('storyId');
+      var chapter = parseInt(Session.get('chNum'));
+      if(ID){
+        Meteor.call('comment', ID, story, chapter, comment);
+      }
+      else sAlert.warning("You must be signed in to comment!");
+      event.target.comment.value = "";
+    }
+});
+
+Template.browse.helpers({
+  isLarge: function(){
+    var size =  $(window).width() / parseFloat($("body").css("font-size"));
+    if(size>=40) return true;
+    else return false;
+  },
+  result: function(){
+    var sortby = Session.get('sortbyResult');
+    var sortorder = Session.get('sortorderResult');
+    var sortNum;
+    if(sortorder == 'ascendingly') sortNum=1;
+    else sortNum=-1;
+    if(sortby=='update') return Story.find({}, {sort:{updateDate: sortNum}});
+    else if(sortby=='likes') return Story.find({}, {sort:{likes: sortNum}});
+    else if(sortby=='comments') return Story.find({}, {sort: {comments: sortNum}});
+    else if(sortby=='wordcount') return Story.find({}, {sort: {wordCount: sortNum}});
+
+
+  },
+  authorName: function(id){
+    return Meteor.users.findOne(id).username;
+  },
+  fromNow: function(date){
+    return moment(date).fromNow();
+  },
+  hasResults: function(){
+    if(Story.findOne()) return true;
+    else return false;
+  }
+});
+
+
+Template.quickBrowse.events({
+  'submit form': function(){
+    event.preventDefault();
+    var genre = event.target.genre.value;
+    var rating = event.target.rating.value;
+    var status = event.target.status.value;
+    var sortby = event.target.sortby.value;
+    var sortorder = event.target.sortorder.value;
+    if(!genre || !rating || !status || !sortby || !sortorder) sAlert.error("All fields are required!");
+    else {
+      Router.go('browse.results', {genre: genre, rating: rating, status: status, sortby: sortby, sortorder: sortorder});
+    }
+  }
+});
 
 
 
@@ -697,79 +914,3 @@ Template.showStory.onDestroyed(function () {
     passwordSignupFields: "USERNAME_AND_EMAIL"
   });
   
-}
-//here we have the server part
-
-
-if (Meteor.isServer) {
-  /*Meteor.publish('showUserOnly', function(){
-  return Story.find({genre: 'G'});
- });*/ 
-//FOR INDIVIDUAL PROFILES, PUBLISH USER PROFILES
-
-  Meteor.methods({
-
-    profileUpdate: function(name, dob, bio){
-      Meteor.users.update({_id: Meteor.userId()}, {$set: {"profile.name": name, "profile.dob": dob, "profile.bio": bio, "profile.completed": true}});
-    },
-    addStory: function(title, desc, rating, genre){
-      Story.insert({title: title, description: desc, rating: rating, genre: genre}, function(e, r){
-        if(e){
-          for(var i=0; i<Story.simpleSchema().namedContext().invalidKeys().length; i++)
-           throw new Meteor.Error(Story.simpleSchema().namedContext().invalidKeys()[i].message);
-       }
-      });
-    },
-    addChapter: function(storyid, note, content, wordcount){
-      var st = Story.findOne(storyid);
-      var num = st.chapters + 1;  //TODO only increment story chapters if insert was successful. 
-      if(st.author === Meteor.userId()){
-      Chapters.insert({note: note, content: content, wordCount: wordcount, story: storyid, number: num});
-      Story.update({_id: storyid}, {$inc: {chapters: 1, wordCount: wordcount}, $set: {updateDate: new Date()}}); 
-    }
-    },
-    editChapter: function(id, num, note, content, diff){
-      var st = Story.findOne(id);
-      if(st.author===Meteor.userId()){
-        Chapters.update({story: id, number: num}, {$set: {note: note, content: content}, $inc: {wordCount: diff}});
-        Story.update({_id: id}, {$inc: {wordCount: diff}});
-      }
-    },
-    updateStory: function(id,title,rating,genre,desc){
-      Story.update({_id: id, author: Meteor.userId()}, {$set: {title: title, rating: rating, genre:genre, description: desc}});
-    },
-    deleteStory: function(storyid){
-      var st = Story.findOne(storyid);
-      if(st.author === Meteor.userId()){Story.remove({_id: storyid});
-      Chapters.remove({story: storyid});
-      Likes.remove({story: storyid});}
-      
-    },
-    like: function(storyId, userId){
-      var present = Likes.findOne({story: storyId, liker: userId});
-      if(present) {
-        Likes.remove({story: storyId, liker: userId});
-        Story.update({_id: storyId}, {$inc: {likes: -1}});
-      }
-      else {
-        Likes.insert({story: storyId, liker: userId});
-        Story.update({_id: storyId}, {$inc: {likes: 1}});
-      }
-    },
-    deleteChapter: function(id, num){
-      var st = Story.findOne(id);
-      var wc = Chapters.findOne({story: id, number: num}).wordCount;
-      var diff = st.wordCount - wc;
-      var old = st.chapters;
-      if(st.author === Meteor.userId()){
-        Chapters.remove({story: id, number: num});
-        Story.update({_id: id}, {$inc: {chapters: -1}, $set: {wordCount: diff}});
-        if(num<old){
-          Chapters.update({number: {$gt: num}}, {$inc: {number: -1}});
-        }
-      }
-    }
-  });
-}
-
-

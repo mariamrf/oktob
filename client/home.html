@@ -1,0 +1,112 @@
+<template name="topNav"> <!--Moved to a separate template for the jquery plugin-->
+<li><a href="/profile/{{id}}" data-tooltip aria-haspopup="true" class="has-tip" data-disable-hover='false' tabindex=1 title="Your profile">{{>profileIcon}}</a></li>
+  <li><a href="/new-story" data-tooltip aria-haspopup="true" class="has-tip alerts" data-disable-hover='false' tabindex=1 title="Add New Story">{{>addIcon}}</a>
+  </li>
+  <li><a href="/alerts" data-tooltip aria-haspopup="true" class="has-tip alerts" data-disable-hover='false' tabindex=1 title="Your alerts">{{#if alerts}}<span class="alert-bubble">{{alerts}}</span>{{/if}}{{>alertIcon}}</a></li>
+
+</template>
+
+<template name="topBar"><div class="top-bar" data-topbar>
+	<div class="top-bar-left">
+		<ul class="dropdown menu" data-dropdown-menu>
+			<li><a href="/">{{>homeIcon}}</a></li>
+			{{#if currentUser}} 
+  			{{> topNav}}
+  			
+{{/if}}
+			 {{#if isSmall}}<li>{{#if currentUser}}{{> loginButtons align="right"}}{{else}} {{>loginButtons}}{{/if}}</li>{{/if}}
+
+		</ul>
+	</div>
+	{{#if isLarge}}
+	<div class="top-bar-right"><div class="signin">
+		
+			<ul class="dropdown menu" data-dropdown-menu >
+			
+		<!--Login Buttons here-->
+		<!--<button class="hollow button" href="#" data-open="loginForm">Sign In</button>-->
+		<li>{{> loginButtons align="right"}}</li></ul></div>
+	</div>
+	{{/if}}
+</div></template>
+
+
+<template name="welcome">
+	<div class="hero">
+<div class="row">
+	<div class="small-12 columns title"><p><h1 class="text-center">Oktob</h1></p></div>
+	<div class="small-12 columns desc"><p class="text-center">It's time to tell your story.</p></div>
+</div>
+<div class="row align-center">
+
+<div class="small-12 column"><ul class="topMenu">
+<li><a class="hollow button small" href="/browse">BROWSE</a></li>
+<li><a class="hollow button small" href="/faq">FAQ</a></li>
+<li><a class="hollow button small" href="/contact">CONTACT</a></li>
+</ul>
+
+</div>
+</div>
+
+</div>
+
+</template>
+
+<template name="homeList">
+	{{#if currentUser}}
+	{{profileWarning}}	
+{{/if}}
+<div class="row"><div class="small-12 medium-6 columns"><h4>Quick Browse:</h4>
+{{>quickBrowse}}
+</div>
+<div class="small-12 medium-6 columns">
+	<h4>Recently Updated Stories:</h4>
+{{#each homeStory}}
+<div class="row">
+	<div class="small-12 columns">
+<div class="story">
+	<div class="row">
+		<div class="small-12 columns"><h5><a href="/story/{{_id}}">{{title}}</a><small class="author"><a href="/profile/{{author}}">&emsp;by {{authorName author}}</a></small></h5></div>
+	</div>
+	<div class="row">
+		<div class="small-12 columns"><p>{{description}}</p></div>
+	</div>
+	<div class="row">
+		<div class="small-12 columns"><span class="stats"><span class="stats-label">Genre:</span> {{genre}} / <span class="stats-label">Rating:</span> {{rating}} / <span class="stats-label">Word Count:</span> {{locale wordCount}} / <span class="stats-label">Chapters:</span> {{chapters}} / <span class="stats-label">Last Updated:</span> {{fromNow updateDate}} / <span class="stats-label">Published:</span> {{fromNow uploadDate}} / <span class="stats-label">Status:</span> {{status}} / <span class="stats-label">Likes:</span> {{likes}} / <span class="stats-label">Comments:</span> {{comments}}</span></div>
+	</div>
+</div>
+	</div>
+</div>
+{{/each}}
+</div>
+</div>
+{{#if currentUser}}
+<hr>
+	{{> feed}}
+{{/if}}
+
+</template>
+
+<template name="feed">
+		{{#if hasFollowed}}
+		<div class="row">
+		<div class="small-12 columns">
+			<h4>{{> bigStar}} Stories you follow:</h4>
+{{#each followedStory}}
+<div class="row">
+	<div class="small-12 columns">
+<div class="story">
+	<div class="row">
+		<div class="small-12 columns"><h5><a href="/story/{{story}}">{{titleFollowed story}}</a><small class="author"><a href="/profile/{{authorFollowed story}}">&emsp;by {{authorName story}}</a></small></h5></div>
+	</div>
+	<div class="row">
+		<div class="small-12 columns"><p>{{descriptionFollowed story}}</p></div>
+	</div>
+	<div class="row">
+		<div class="small-12 columns"><span class="stats"><span class="stats-label">Genre:</span> {{genreFollowed story}} / <span class="stats-label">Rating:</span> {{ratingFollowed story}} / <span class="stats-label">Word Count:</span> {{wordCountFollowed story}} / <span class="stats-label">Chapters:</span> {{chaptersFollowed story}} / <span class="stats-label">Last Updated:</span> {{updateDateFollowed story}} / <span class="stats-label">Published:</span> {{uploadDateFollowed story}} / <span class="stats-label">Status:</span> {{statusFollowed story}} / <span class="stats-label">Likes:</span> {{likesFollowed story}} / <span class="stats-label">Comments:</span> {{commentsFollowed story}}</span></div>
+	</div>
+</div>
+	</div>
+</div>
+{{/each}} </div> </div>{{/if}}
+	</template>
