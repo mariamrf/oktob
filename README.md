@@ -8,3 +8,5 @@ A writing platform that allows people to:
 <li>Browse through stories based on genre, rating, word count, number of likes, number of comments.</li>
 <li>Get notified when someone follows, likes or comments on their work.</li>
 </ul>
+
+Find it live here: http://oktob.meteor.com
