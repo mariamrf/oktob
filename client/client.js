@@ -64,12 +64,11 @@ Template.topBar.helpers({
         return Meteor.userId();
       },
       alerts: function(){
-        var id = Meteor.userId();
         var then, number;
         if(Meteor.user().profile.lastVisit) {then = Meteor.user().profile.lastVisit; 
-          number = Notifications.find({user: id, date: {$gt: then}}).count();
+          number = Notifications.find({date: {$gt: then}}).count();
           }
-        else number= Notifications.find({user: id}).count();
+        else number= Notifications.find().count();
        
          return number;
       }
@@ -93,7 +92,7 @@ Template.topBar.helpers({
     
     },
     homeStory: function(){
-      return Story.find({wordCount: {$ne: 0}}, {sort: {updateDate: -1}, limit:3});
+      return Story.find({}, {sort: {updateDate: -1}, limit: 3}); //limit is here because while home stories are limited from the server we subscribe to home stories + followed stories
     },
     fromNow: function(date){
       return moment(date).fromNow();
@@ -121,19 +120,16 @@ Template.showStory.onDestroyed(function () {
 });
   Template.showStory.helpers({
     totalComments: function(){
-      var id = Session.get('thisStory');
-      return Story.findOne(id).comments;
+      return Story.findOne().comments;
     },
     followed: function(){
       var story = Session.get('thisStory');
-      var user = Meteor.userId();
-      var follow = Follows.findOne({story: story, follower: user});
+      var follow = Follows.findOne({story: story});
       if(follow) return true;
       else return false;
     },
     follows: function(){
-      var id = Session.get('thisStory');
-      var num = Story.findOne(id).follows;
+      var num = Story.findOne().follows; //even tho there's only one, findOne returns the record while find() returns the cursor, so we use findOne to get attributes
       return num;
     },
     followCounter: function(num){
@@ -142,18 +138,15 @@ Template.showStory.onDestroyed(function () {
       else return " people follow this.";
     },
     canDisplay: function(){
-      var id = Session.get('thisStory');
-      return Story.findOne(id).displayChapterNumbers;
+      return Story.findOne().displayChapterNumbers; //we use Story.find without parameters because the server, on this page, only sends info for this particular story
     },
     hasChapters: function(){
-      var id = Session.get('thisStory');
-      var num = Story.findOne(id).chapters;
+      var num = Story.findOne().chapters;
       if(num==0) return false;
       else return true;
     },
     likes: function(){
-      var id = Session.get('thisStory');
-      var num = Story.findOne(id).likes;
+      var num = Story.findOne().likes;
       return num;
     },
     likeCounter: function(number){
@@ -165,100 +158,82 @@ Template.showStory.onDestroyed(function () {
       if(!Meteor.user()) return false;
       else {
         var storyId = Session.get('thisStory'); 
-        var user = Meteor.userId();
-        var like = Likes.findOne({liker: user, story: storyId});
+        var like = Likes.findOne({story: storyId});
         if(like) return true;
         else return false;
       }
     },
     myProfile: function(){
       var myId = Meteor.userId();
-      var storyId = Session.get('thisStory');
-      var authorId = Story.findOne(storyId).author;
+      var authorId = Story.findOne().author;
       if (myId == authorId) return true;
       else return false;
     },
     title: function(){
-      var id = Session.get('thisStory');
-      var st = Story.findOne(id);
+      var st = Story.findOne();
       return st.title;
     },
     hasNote: function(number){
-      var id = Session.get('thisStory');
-      var chapter = Chapters.findOne({story: id, number: number});
+      var chapter = Chapters.findOne({number: number});
       if(chapter.note) return true;
       else return false;
     },
     authorName: function(){
-      var id = Session.get('thisStory');
-      var st = Story.findOne(id);
+      var st = Story.findOne();
       var authorid = st.author;
       return Meteor.users.findOne(authorid).username;
     },
     author: function(){
-       var id = Session.get('thisStory');
-      var st = Story.findOne(id);
+      var st = Story.findOne();
       return st.author;
     },
     genre: function(){
-      var id = Session.get('thisStory');
-      var st = Story.findOne(id);
+      var st = Story.findOne();
       return st.genre;
     },
     rating: function(){
-      var id = Session.get('thisStory');
-      var st = Story.findOne(id);
+      var st = Story.findOne();
       return st.rating;
     },
     wordCount: function(){
-      var id = Session.get('thisStory');
-      var st = Story.findOne(id);
+      var st = Story.findOne();
       return st.wordCount;
     },
     chapters: function(){
-      var id = Session.get('thisStory');
-      var st = Story.findOne(id);
+      var st = Story.findOne();
       return st.chapters;
     },
     status: function(){
-      var id = Session.get('thisStory');
-      var st = Story.findOne(id);
+      var st = Story.findOne();
       return st.status;
     },
     uploadDate: function(){
-      var id = Session.get('thisStory');
-      var st = Story.findOne(id);
+      var st = Story.findOne();
       return moment(st.uploadDate).fromNow();
     },
     updateDate: function(){
-      var id = Session.get('thisStory');
-      var st = Story.findOne(id);
+      var st = Story.findOne();
       return moment(st.uploadDate).fromNow();
     },
     _id: function(){
       return Session.get('thisStory');
     },
     description: function(){
-      var id = Session.get('thisStory');
-      var st = Story.findOne(id);
+      var st = Story.findOne();
       return st.description;
     },
     chapter: function(){
-      var id = Session.get('thisStory');
-      return Chapters.find({story: id}, {sort: {number: 1}});
+      return Chapters.find({}, {sort: {number: 1}});
     },
     notLastChapter: function(number){
-      var id = Session.get('thisStory');
-      var last = Story.findOne(id).chapters;
+      var last = Story.findOne().chapters;
       if(last == number) return false;
       else return true;
     },
     comments: function(num){
-      var id = Session.get('thisStory');
       return Comments.find({chapter: num}).count();
     },
     message: function(num){
-      var id = Session.get('thisStory');
       var count = Comments.find({chapter: num}).count();
       if(count==0) return "Be the first to comment!";
       else return "Join the discussion!";
@@ -273,7 +248,7 @@ Template.showStory.onDestroyed(function () {
     },
     'click #like-button': function(){
       var story = Session.get('thisStory');
-      var st = Story.findOne(story).author;
+      var st = Story.findOne().author;
       var user = Meteor.userId();
       if(!user){sAlert.warning("You have to be logged in to like this!");}
       else if(user==st){sAlert.warning("You can't like your own story, sorry!");}
@@ -281,13 +256,13 @@ Template.showStory.onDestroyed(function () {
     },
     'click #follow-button': function(){
       var story = Session.get('thisStory');
-      var st = Story.findOne(story).author;
+      var st = Story.findOne().author;
       var user = Meteor.userId();
       if(!user){sAlert.warning("You have to be logged in to follow this!");}
       else if(user==st){sAlert.warning("You can't follow your own story, sorry!");}
       else{Meteor.call('follow', story, user);}
     }
-  });
+  }); 
 
   Template.editProfile.onRendered(function(){
      var picker = new Pikaday({ field: document.getElementById('datepicker'), yearRange: [1930,2010] }); //CHANGE END DATE ACCORDINGLY
@@ -347,12 +322,12 @@ Template.showStory.onDestroyed(function () {
   });
 
   Template.addChapter.onRendered(function(){
-         tinymce.init({
-  selector: 'textarea',  // change this value according to your HTML
-  plugins: 'wordcount paste directionality',
-  keep_styles: false,
-  paste_word_valid_elements: "b,strong,i,em,h1,h2,p,br"
-    });
+  tinymce.init({
+      selector: 'textarea',  // change this value according to your HTML
+      plugins: 'wordcount paste directionality',
+      keep_styles: false,
+      paste_word_valid_elements: "b,strong,i,em,h1,h2,p,br"
+   });
 
 
    
@@ -360,8 +335,7 @@ Template.showStory.onDestroyed(function () {
 
   Template.addChapter.helpers({
     title: function(){
-      var id = Session.get('storyId');
-      return Story.findOne(id).title;
+      return Story.findOne().title;
     },
     storyid: function(){
       return Session.get('storyId');
@@ -377,7 +351,7 @@ Template.showStory.onDestroyed(function () {
       var res = countString.substr(7);
       var wordcount = parseInt(res); //remove parseInt when input isn't string
       var storyid = Session.get('storyId');
-      var author = Story.findOne(storyid).author;
+      var author = Story.findOne().author;
       var complete = event.target.completed.checked;
       var status;
       if(complete) status = "Complete";
@@ -488,23 +462,20 @@ Template.showStory.onDestroyed(function () {
   });
   Template.editStory.helpers({
     title: function(){
-      var id = Session.get('storyId');
-      return Story.findOne(id).title;
+      return Story.findOne().title;
     },
     genre: function(){
-      var id = Session.get('storyId');
-      return Story.findOne(id).genre;
+      return Story.findOne().genre;
     },
     description: function(){
-      var id = Session.get('storyId');
-      return Story.findOne(id).description;
+      return Story.findOne().description;
     }
   });
   Template.editStory.events({
     'submit form': function(){
       event.preventDefault();
       var id = Session.get('storyId');
-      var author = Story.findOne(id).author;
+      var author = Story.findOne().author;
       if(author==Meteor.userId()){
       var title = event.target.storytitle.value;
       var rating = event.target.rating.value;
@@ -526,9 +497,8 @@ Template.showStory.onDestroyed(function () {
     }
   });
  Template.editChapter.onRendered(function(){
-  var id = Session.get('storyId');
   var num = Session.get('chNum');
-  var stry = Story.findOne(id);
+  var stry = Story.findOne();
   var st = stry.status;
   var ch = stry.chapters;
    if(st == 'Complete' && num == ch) document.getElementById("checkbox2").checked = true;
@@ -555,15 +525,11 @@ Template.showStory.onDestroyed(function () {
     return Session.get('storyId');
   },
   note: function(){
-    var id = Session.get('storyId');
-    var num = parseInt(Session.get('chNum'));
-    var ch = Chapters.findOne({story: id, number: num});
+    var ch = Chapters.findOne();
     return ch.note;
   },
   content: function(){
-    var id = Session.get('storyId');
-    var num = parseInt(Session.get('chNum'));
-    var ch = Chapters.findOne({story: id, number: num});
+    var ch = Chapters.findOne();
     return ch.content;
   }
  });
@@ -578,8 +544,8 @@ Template.showStory.onDestroyed(function () {
       var countString = document.getElementById('mceu_31').innerHTML;
       var res = countString.substr(7);
       var wordcount = parseInt(res); //remove parseInt when input isn't string 
-      var author = Story.findOne(id).author;
-      var oldwords = Story.findOne(id).wordCount;
+      var author = Story.findOne().author;
+      var oldwords = Story.findOne().wordCount;
       var difference = wordcount - oldwords;
       var check = event.target.completed.checked;
       var status;
@@ -595,7 +561,7 @@ Template.showStory.onDestroyed(function () {
     'click #chConfirmDelete': function(){
       var story = Session.get('storyId');
       var num = parseInt(Session.get('chNum'));
-      var author = Story.findOne(story).author;
+      var author = Story.findOne().author;
       if(author == Meteor.userId()){
         Meteor.call('deleteChapter', story, num);
       }else sAlert.error("Oops, you're not allowed to do that!");
@@ -606,13 +572,11 @@ Template.showStory.onDestroyed(function () {
 
   Template.feed.helpers({
     hasFollowed: function(){
-      var user = Meteor.userId();
-      if(!Follows.findOne({follower: user})) return false;
+      if(!Follows.findOne()) return false;
       else return true;
     },
     followedStory: function(){
-      var id = Meteor.userId();
-      return Follows.find({follower: id}, {sort: {date: -1}});
+      return Follows.find({}, {sort: {date: -1}});
     },
     titleFollowed: function(id){
       return Story.findOne(id).title;
@@ -656,7 +620,7 @@ Template.showStory.onDestroyed(function () {
     commentsFollowed: function(id){
       return Story.findOne(id).comments;
     }
-  });
+  }); 
   Template.alerts.onRendered(function(){
     //iron router wouldn't render it if user wasn't signed in
     Session.set('previousVisit', Meteor.user().profile.lastVisit);
@@ -665,8 +629,8 @@ Template.showStory.onDestroyed(function () {
   Template.alerts.helpers({
 
     hasAlerts: function(){
-      var id = Meteor.userId();
-      if(Notifications.findOne({user: id})) return true;
+    
+      if(Notifications.findOne()) return true;
       else return false;
     },
     isNew: function(date){
@@ -675,12 +639,8 @@ Template.showStory.onDestroyed(function () {
       else return false;
     },
     alert: function(){
-      var id = Meteor.userId();
-      var al = Notifications.find({user: id}, {sort: {date: -1}});
+      var al = Notifications.find({}, {sort: {date: -1}});
       return al;
-    },
-    setType: function(type){
-      Session.set('alertType', type);
     },
     isLike: function(type){
       if(type=='L') return true;
@@ -778,17 +738,15 @@ Template.showStory.onDestroyed(function () {
     fromNow: function(date){
       return moment(date).fromNow();
     }
-  });
+  }); 
 
 Template.showChapter.helpers({
   title: function(){
-    var story = Session.get('storyId');
-    return Story.findOne(story).title;
+    return Story.findOne().title;
   },
   myProfile: function(){
     var myId = Meteor.userId();
-    var story = Session.get('storyId');
-    var author = Story.findOne(story).author;
+    var author = Story.findOne().author;
     if(myId==author) return true;
     else return false;
   },
@@ -799,31 +757,22 @@ Template.showChapter.helpers({
     return Session.get('chNum');
   },
   canDisplay: function(){
-    var id = Session.get('storyId');
-    var check = Story.findOne(id).displayChapterNumbers;
+    var check = Story.findOne().displayChapterNumbers;
     if(check) return true;
     else return false;
   },
   hasNote: function(){
-    var id = Session.get('storyId');
-    var ch = parseInt(Session.get('chNum'));
-    if(Chapters.findOne({story: id, number: ch}).note) return true;
+    if(Chapters.findOne().note) return true;
     else return false;
   },
   note: function(){
-    var id = Session.get('storyId');
-    var ch = parseInt(Session.get('chNum'));
-    return Chapters.findOne({story: id, number: ch}).note;
+    return Chapters.findOne().note;
   },
   content: function(){
-    var id = Session.get('storyId');
-    var ch = parseInt(Session.get('chNum'));
-    return Chapters.findOne({story: id, number: ch}).content;
+    return Chapters.findOne().content;
   },
   commentContent: function(){
-    var id = Session.get('storyId');
-    var ch = parseInt(Session.get('chNum'));
-    return Comments.find({story: id, chapter: ch});
+    return Comments.find();
   },
   username: function(id){
     return Meteor.users.findOne(id).username;
@@ -833,8 +782,7 @@ Template.showChapter.helpers({
   },
   canDelete: function(commenterId, id){
     var user = Meteor.userId();
-    var st = Session.get('storyId');
-    var author = Story.findOne(st).author;
+    var author = Story.findOne().author;
     if(user==commenterId || user==author)   return true;
     return false;
 

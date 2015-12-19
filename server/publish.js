@@ -5,7 +5,7 @@ Meteor.publish('singleStory', function(id){
     return Story.find({author: id});
   });
   Meteor.publish('homeStories', function(){
-    return Story.find({wordCount: {$ne: 0}}, {limit:3});
+    return Story.find({wordCount: {$ne: 0}}, {sort: {updateDate: -1}, limit:3});
   });
  
   Meteor.publish('users', function(){
