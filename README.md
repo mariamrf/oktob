@@ -7,6 +7,7 @@
 * [Front-End](#front-end)
 * [Back-End](#back-end)
 * [Screenshots](#screenshots)
+* [License](#license)
 
 ## Overview
 Oktob is a writing platform that allows people to:
@@ -88,3 +89,6 @@ All the views:
 /profile (logged in)
 
 ![Image of logged in profile](http://i.imgur.com/05hcxOy.png)
+
+## License
+MIT. Details [here](license.md).
